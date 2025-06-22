@@ -36,12 +36,18 @@
             localStorage.setItem('role', result.result.role);
 
             document.getElementById('loginMessage').innerText = 'Login successful!';
-            // Redirect
-            window.location.href = '../home';
+
+            // Redirect based on role
+            if (result.result.role === 'ADMIN') {
+                window.location.href = '../admin';
+            } else {
+                window.location.href = '../home';
+            }
         } else {
             document.getElementById('loginMessage').innerText = result.message || 'Login failed!';
         }
     });
 </script>
+
 </body>
 </html>
