@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,20 @@ public class CustomerService {
     IAccountRepository accountRepository;
     PasswordEncoder passwordEncoder;
     JwtUtil jwtUtil;
+
+    public List<CustomerResponse> getAllCustomers() {
+        return customerRepository.findAll().stream().map(customer -> CustomerResponse.builder()
+                .customerId(customer.getCustomerId())
+                .customerName(customer.getCustomerName())
+                .email(customer.getEmail())
+                .mobile(customer.getMobile())
+                .birthday(customer.getBirthday())
+                .identityCard(customer.getIdentityCard())
+                .licenceNumber(customer.getLicenceNumber())
+                .licenceDate(customer.getLicenceDate())
+                .build()
+        ).collect(Collectors.toList());
+    }
 
 
     public void updateCustomerName(String jwtToken, String name) {

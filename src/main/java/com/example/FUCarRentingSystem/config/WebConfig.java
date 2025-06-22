@@ -14,11 +14,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtAuthInterceptor)
-                .addPathPatterns("/customer/**") // ✅ Chỉ chặn giao diện web
+                .addPathPatterns("/customer/**")
                 .excludePathPatterns(
-                        "/auth/**",         // Cho phép trang login
+                        "/auth/**",
                         "/css/**", "/js/**", "/images/**", // Tài nguyên tĩnh
-                        "/api/**"           // ✅ Không chặn API
+                        "/api/**"           // khong chặn API
                 );
     }
 }

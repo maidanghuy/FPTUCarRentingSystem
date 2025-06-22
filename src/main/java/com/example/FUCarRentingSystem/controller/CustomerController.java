@@ -2,6 +2,7 @@ package com.example.FUCarRentingSystem.controller;
 
 import com.example.FUCarRentingSystem.dto.response.APIResponse;
 import com.example.FUCarRentingSystem.dto.response.AuthResponse;
+import com.example.FUCarRentingSystem.dto.response.CustomerResponse;
 import com.example.FUCarRentingSystem.entity.CarRental;
 import com.example.FUCarRentingSystem.service.CarRentalService;
 import com.example.FUCarRentingSystem.service.CustomerService;
@@ -23,6 +24,13 @@ public class CustomerController {
     private final CustomerService customerService;
     @Autowired
     private final CarRentalService carRentalService;
+
+    @GetMapping("")
+    public APIResponse<?> getAllCustomerProfile() {
+        return APIResponse.<List<CustomerResponse>>builder()
+                .result(customerService.getAllCustomers())
+                .build();
+    }
 
     @PutMapping("/name")
     public APIResponse<?> updateName(@RequestHeader("Authorization") String token, @RequestBody JsonNode json) {
