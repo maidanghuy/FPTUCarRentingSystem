@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rent Car - FUCarRentingSystem</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">FUCarRenting</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="../home">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="rental">Rental</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href="#" id="logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Rental Form -->
+<div class="container mt-4">
+    <h3 class="mb-3">Rent Car: <span class="text-primary" id="carTitle"></span></h3>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <p><strong>Model Year:</strong> <span id="modelYear"></span></p>
+            <p><strong>Color:</strong> <span id="color"></span></p>
+            <p><strong>Capacity:</strong> <span id="capacity"></span> seats</p>
+            <p><strong>Description:</strong> <span id="description"></span></p>
+            <p><strong>Import Date:</strong> <span id="importDate"></span></p>
+            <p><strong>Producer:</strong> <span id="producer"></span></p>
+            <p><strong>Rent Price:</strong> $<span id="rentPrice"></span>/day</p>
+            <p><strong>Status:</strong> <span id="status"></span></p>
+        </div>
+    </div>
+
+    <form id="rentForm">
+        <input type="hidden" id="carId">
+        <div class="mb-3">
+            <label>Pickup Date</label>
+            <input type="datetime-local" class="form-control" id="pickupDate" required>
+        </div>
+        <div class="mb-3">
+            <label>Return Date</label>
+            <input type="datetime-local" class="form-control" id="returnDate" required>
+        </div>
+        <button type="submit" class="btn btn-success">Confirm Rental</button>
+    </form>
+
+    <div id="message" class="mt-3"></div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const carId = localStorage.getItem("selectedCarId");
+        if (!carId) {
+            alert("No car selected!");
+            window.location.href = "/home";
+            return;
+        }
+
+        document.getElementById("carId").value = carId;
+
+        fetch(`/de180293/api/cars/${carId}`)
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to fetch car info");
+                return response.json();
+            })
+            .then(data => {
+                const car = data.result;
+                document.getElementById("carTitle").textContent = `${car.carName}`;
+                document.getElementById("modelYear").textContent = car.carModelYear;
+                document.getElementById("color").textContent = car.color;
+                document.getElementById("capacity").textContent = car.capacity;
+                document.getElementById("description").textContent = car.description;
+                document.getElementById("importDate").textContent = car.importDate.split("T")[0];
+                document.getElementById("producer").textContent = `${car.producer.producerName} (${car.producer.country})`;
+                document.getElementById("rentPrice").textContent = car.rentPrice.toFixed(2);
+                document.getElementById("status").textContent = car.status;
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("carTitle").textContent = "Car not found!";
+            });
+    });
+</script>
+
+<script>
+    document.getElementById("rentForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const carId = document.getElementById("carId").value;
+        const pickupDate = document.getElementById("pickupDate").value;
+        const returnDate = document.getElementById("returnDate").value;
+        const token = localStorage.getItem("accessToken");
+
+        const payload = {
+            rentalItems: [
+                { carId, pickupDate, returnDate }
+            ]
+        };
+
+        try {
+            const res = await axios.post("/de180293/api/customer/rentals", payload, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            document.getElementById("message").innerHTML =
+                `<div class="alert alert-success">Rental successful!</div>`;
+        } catch (err) {
+            const msg = err.response?.data?.message || "Rental failed!";
+            document.getElementById("message").innerHTML =
+                `<div class="alert alert-danger">${msg}</div>`;
+        }
+    });
+</script>
+
+<!-- LOGOUT -->
+<script>
+    document.getElementById('logout').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        // Xoá JWT token trong localStorage
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("username");
+        localStorage.removeItem("role");
+
+        fetch('http://localhost:8080/de180293/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include' // để gửi cookie theo request
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data.message);
+            });
+
+        // Chuyển hướng về trang login
+        window.location.href = "../auth/login";
+    });
+</script>
+
+</body>
+</html>

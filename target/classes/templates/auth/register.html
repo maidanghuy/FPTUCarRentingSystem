@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - FUCarRentingSystem</title>
+</head>
+<body>
+<h2>Register</h2>
+<form id="registerForm">
+    <label>Username:</label>
+    <input type="text" id="accountName" required><br>
+    <label>Email:</label>
+    <input type="email" id="email" required><br>
+    <label>Password:</label>
+    <input type="password" id="password" required><br>
+
+    <label>Customer Name:</label>
+    <input type="text" id="customerName" required><br>
+    <label>Mobile:</label>
+    <input type="text" id="mobile" required><br>
+    <label>Birthday:</label>
+    <input type="datetime-local" id="birthday" required><br>
+    <label>Identity Card:</label>
+    <input type="text" id="identityCard" required><br>
+    <label>Licence Number:</label>
+    <input type="text" id="licenceNumber" required><br>
+    <label>Licence Date:</label>
+    <input type="datetime-local" id="licenceDate" required><br>
+
+    <button type="submit">Register</button>
+</form>
+
+<p id="registerMessage"></p>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const response = await fetch('/de180293/api/auth/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                accountName: document.getElementById('accountName').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                customerName: document.getElementById('customerName').value,
+                mobile: document.getElementById('mobile').value,
+                birthday: document.getElementById('birthday').value,
+                identityCard: document.getElementById('identityCard').value,
+                licenceNumber: document.getElementById('licenceNumber').value,
+                licenceDate: document.getElementById('licenceDate').value
+            })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            document.getElementById('registerMessage').innerText = 'Register successful!';
+            window.location.href = './login';
+        } else {
+            document.getElementById('registerMessage').innerText = result.message || 'Register failed!';
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /de180293
+
+spring:
+  config:
+    import: optional:file:./config/application-secrets.yml
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  application:
+    name: de180293
+
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+
+app:
+  backend:
+    url: http://localhost:8080/de180293
+
+logging:
+  level:
+    org.springframework.mail: DEBUG
