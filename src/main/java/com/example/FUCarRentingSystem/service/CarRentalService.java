@@ -18,6 +18,8 @@ import com.example.FUCarRentingSystem.security.JwtUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -36,7 +38,6 @@ public class CarRentalService {
     ICarRepository carRepository;
     IAccountRepository accountRepository;
     JwtUtil jwtUtil;
-
 
     public List<CarRental> getRentalsByCustomerId(String jwtToken) {
         Customer customer = getCustomerFromToken(jwtToken);
@@ -71,6 +72,19 @@ public class CarRentalService {
                 .findByPickupDateBetweenOrderByPickupDateDesc(startDateTime, endDateTime);
         return carRentalMapper.toRentalReportList(rentals);
     }
+
+    public Page<RentalReportResponse> getRentalReportBetweenPaged(LocalDate startDate, LocalDate endDate,
+            Pageable pageable) {
+        if (startDate.isAfter(endDate)) {
+            throw new AppException(ErrorCode.INVALID_DATE_RANGE);
+        }
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay().minusSeconds(1);
+        Page<CarRental> rentalsPage = carRentalRepository.findByPickupDateBetweenOrderByPickupDateDesc(startDateTime,
+                endDateTime, pageable);
+        return rentalsPage.map(carRentalMapper::toRentalReport);
+    }
+
     public List<CarRental> createRentalTransaction(String jwtToken, CreateCarRentalRequest request) {
 
         String token = jwtToken.replace("Bearer ", "");
@@ -118,6 +132,11 @@ public class CarRentalService {
         }
 
         return carRentalRepository.saveAll(rentals);
+    }
+
+    public Page<RentalReportResponse> getAllRentalReportsPaged(Pageable pageable) {
+        Page<CarRental> rentalsPage = carRentalRepository.findAll(pageable);
+        return rentalsPage.map(carRentalMapper::toRentalReport);
     }
 
 }

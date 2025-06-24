@@ -65,4 +65,14 @@ public class ViewController {
     public String newCar() {
         return "dashboard/customers"; // Trỏ tới file customer.html
     }
+
+    @GetMapping("/admin/rentals")
+    public String viewRentals() {
+        return "dashboard/rentals"; // Trỏ tới file rentals.html
+    }
+
+    @GetMapping("/admin/producers")
+    public String newCarPage() {
+        return "dashboard/producers"; // Trỏ tới file new_car.html
+    }
 }

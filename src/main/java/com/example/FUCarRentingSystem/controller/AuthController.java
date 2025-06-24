@@ -69,11 +69,19 @@ public class AuthController {
                 .build());
     }
 
-    // Sample JSON
+    // Sample JSON CUSTOMER
     /*
         {
             "email": "nguyenvana@example.com",
             "password": "SecurePass123"
+        }
+    */
+
+    // Sample JSON ADMIN
+    /*
+        {
+            "email": "maidanghuy2222@gmail.com",
+            "password": "********"
         }
     */
 

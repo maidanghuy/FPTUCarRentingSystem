@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,12 +29,19 @@ public class DashboardController {
     // http://localhost:8080/de180293/api/dashboard/rentals/report?startDate=2025-06-01&endDate=2025-06-30
     @GetMapping("/rentals/report")
     public APIResponse<?> getRentalReport(
-            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size) {
 
-        List<RentalReportResponse> report = carRentalService.getRentalReportBetween(startDate, endDate);
-        return APIResponse.<List<RentalReportResponse>>builder()
-                .result(report)
+        Page<RentalReportResponse> reportPage;
+        if (startDate == null || endDate == null) {
+            reportPage = carRentalService.getAllRentalReportsPaged(PageRequest.of(page, size));
+        } else {
+            reportPage = carRentalService.getRentalReportBetweenPaged(startDate, endDate, PageRequest.of(page, size));
+        }
+        return APIResponse.<Page<RentalReportResponse>>builder()
+                .result(reportPage)
                 .build();
     }
 }
