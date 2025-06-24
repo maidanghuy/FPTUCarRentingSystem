@@ -1,6 +1,7 @@
 package com.example.FUCarRentingSystem.config;
 
 import com.example.FUCarRentingSystem.security.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Component
 public class JwtAuthInterceptor implements HandlerInterceptor {
@@ -23,7 +23,6 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
         String token = null;
 
-        // ✅ Lấy token từ cookie thay vì header
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if (cookie.getName().equals("accessToken")) {
@@ -34,15 +33,25 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
         }
 
         if (token == null) {
-            response.sendRedirect("http://localhost:8080/de180293/home");
+            response.sendRedirect("http://localhost:8080/de180293/auth/login");
             return false;
         }
 
         try {
-            jwtUtil.extractAllClaims(token); // kiểm tra hợp lệ
+            Claims claims = jwtUtil.extractAllClaims(token);
+            String role = (String) claims.get("role");
+
+            String requestURI = request.getRequestURI();
+
+            if (requestURI.startsWith("/de180293/admin") && !"ADMIN".equalsIgnoreCase(role)) {
+                response.sendRedirect("/de180293/home");
+                return false;
+            }
+
             return true;
+
         } catch (Exception e) {
-            response.sendRedirect("http://localhost:8080/de180293/home");
+            response.sendRedirect("/de180293/auth/login");
             return false;
         }
     }
