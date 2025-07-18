@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,5 +46,12 @@ public class DashboardController {
         return APIResponse.<Page<RentalReportResponse>>builder()
                 .result(reportPage)
                 .build();
+    }
+
+    @PutMapping("/rentals/{rentalId}/mark-rented")
+    public APIResponse<?> markRentalAsRented(@RequestHeader("Authorization") String token,
+            @PathVariable String rentalId) {
+        carRentalService.markRentalAsRented(token, rentalId);
+        return APIResponse.builder().result("Rental marked as RENTED").build();
     }
 }

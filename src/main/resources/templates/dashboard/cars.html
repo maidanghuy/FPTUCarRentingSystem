@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Cars Dashboard - FUCarRenting</title>
@@ -11,99 +12,109 @@
       display: flex;
       flex-direction: column;
     }
+
     .admin-sidebar {
       min-height: 100vh;
       background-color: #343a40;
       color: white;
     }
+
     .admin-sidebar a {
       color: white;
       display: block;
       padding: 12px 20px;
       text-decoration: none;
     }
+
     .admin-sidebar a:hover {
       background-color: #495057;
     }
   </style>
 </head>
+
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-dark bg-dark">
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Admin - FUCarRenting</a>
+      <button class="btn btn-outline-light" id="logout">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Admin - FUCarRenting</a>
-    <button class="btn btn-outline-light" id="logout">Logout</button>
-  </div>
-</nav>
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 admin-sidebar">
+        <h5 class="p-3">Management</h5>
+        <a href="cars">Manage Cars</a>
+        <a href="customers">Manage Customers</a>
+        <a href="rentals">Manage Rentals</a>
+        <a href="producers">Manage Producers</a>
+      </div>
 
-<!-- Main Content -->
-<div class="container-fluid">
-  <div class="row">
-    <!-- Sidebar -->
-    <div class="col-md-2 admin-sidebar">
-      <h5 class="p-3">Management</h5>
-      <a href="cars">Manage Cars</a>
-      <a href="customers">Manage Customers</a>
-      <a href="rentals">Manage Rentals</a>
-      <a href="producers">Manage Producers</a>
-    </div>
+      <!-- Content Area -->
 
-    <!-- Content Area -->
-
-    <div class="col-md-10 p-4" id="adminContent">
-      <h2>Car Management</h2>
-      <table class="table table-bordered">
-        <thead>
-        <tr>
-          <th>Car Name</th>
-          <th>Model Year</th>
-          <th>Color</th>
-          <th>Price</th>
-          <th>Status</th>
-        </tr>
-        </thead>
-        <tbody id="carTableBody">
-        <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
-        </tbody>
-      </table>
+      <div class="col-md-10 p-4" id="adminContent">
+        <h2>Car Management</h2>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Car Name</th>
+              <th>Model Year</th>
+              <th>Color</th>
+              <th>Capacity</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Producer</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="carTableBody">
+            <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Scripts -->
-<script>
-  document.getElementById('adminLogoutBtn').addEventListener('click', function () {
-    fetch('/api/auth/logout')
-            .then(() => {
-              localStorage.clear();
-              window.location.href = '/auth/login';
-            });
-  });
-</script>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.getElementById('adminLogoutBtn').addEventListener('click', function () {
+      fetch('/api/auth/logout')
+        .then(() => {
+          localStorage.clear();
+          window.location.href = '/auth/login';
+        });
+    });
+  </script>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("accessToken");
+  <script>
+    let editCarModal;
+    document.addEventListener('DOMContentLoaded', function () {
+      editCarModal = new bootstrap.Modal(document.getElementById('editCarModal'));
+      const token = localStorage.getItem("accessToken");
 
-    fetch("/de180293/api/cars", {
-      headers: {
-        "Authorization": "Bearer " + token
-      }
-    })
-            .then(res => res.json())
-            .then(data => {
-              const cars = data.result || [];
-              const tbody = document.getElementById("carTableBody");
+      fetch("/de180293/api/cars", {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          const cars = data.result || [];
+          const tbody = document.getElementById("carTableBody");
 
-              if (cars.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No cars available.</td></tr>`;
-                return;
-              }
+          if (cars.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No cars available.</td></tr>`;
+            return;
+          }
 
-              cars.forEach(car => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
+          cars.forEach(car => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
           <td>${car.carName}</td>
           <td>${car.carModelYear}</td>
           <td>${car.color}</td>
@@ -116,39 +127,158 @@
             ${car.producer.producerName}<br>
             <small>${car.producer.country}</small>
           </td>
+          <td>
+            <button class='btn btn-primary btn-sm' onclick='openEditCarModal(${JSON.stringify(car)})'>Chỉnh sửa</button>
+          </td>
         `;
-                tbody.appendChild(row);
-              });
-            })
-            .catch(err => {
-              console.error("Failed to load car data", err);
-              const tbody = document.getElementById("carTableBody");
-              tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Failed to load data.</td></tr>`;
-            });
-  });
-</script>
+            tbody.appendChild(row);
+          });
+        })
+        .catch(err => {
+          console.error("Failed to load car data", err);
+          const tbody = document.getElementById("carTableBody");
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Failed to load data.</td></tr>`;
+        });
+    });
+  </script>
 
-<!-- LOGOUT -->
-<script>
-  document.getElementById('logout').addEventListener('click', function (e) {
-    e.preventDefault();
+  <!-- Edit Car Modal -->
+  <div class="modal fade" id="editCarModal" tabindex="-1" aria-labelledby="editCarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editCarModalLabel">Chỉnh sửa thông tin xe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editCarForm">
+            <input type="hidden" id="editCarId">
+            <div class="mb-2">
+              <label class="form-label">Tên xe</label>
+              <input type="text" class="form-control" id="editCarName" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Năm sản xuất</label>
+              <input type="number" class="form-control" id="editCarModelYear" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Màu sắc</label>
+              <input type="text" class="form-control" id="editCarColor" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Sức chứa</label>
+              <input type="number" class="form-control" id="editCarCapacity" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Mô tả</label>
+              <textarea class="form-control" id="editCarDescription"></textarea>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Ngày nhập</label>
+              <input type="datetime-local" class="form-control" id="editCarImportDate" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Giá thuê ($)</label>
+              <input type="number" class="form-control" id="editCarRentPrice" step="0.01" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Trạng thái</label>
+              <select class="form-select" id="editCarStatus" required>
+                <option value="AVAILABLE">AVAILABLE</option>
+                <option value="FULLSLOT">FULLSLOT</option>
+                <option value="MAINTENANCE">MAINTENANCE</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Nhà sản xuất</label>
+              <input type="text" class="form-control" id="editCarProducerId" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // Xoá JWT token trong localStorage
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("username");
-    localStorage.removeItem("role");
+  <script>
+    function openEditCarModal(car) {
+      document.getElementById('editCarId').value = car.carId;
+      document.getElementById('editCarName').value = car.carName;
+      document.getElementById('editCarModelYear').value = car.carModelYear;
+      document.getElementById('editCarColor').value = car.color;
+      document.getElementById('editCarCapacity').value = car.capacity;
+      document.getElementById('editCarDescription').value = car.description || '';
+      if (car.importDate) {
+        // Chuyển về dạng yyyy-MM-ddTHH:mm cho input datetime-local
+        const date = new Date(car.importDate);
+        const tzOffset = date.getTimezoneOffset() * 60000;
+        const localISOTime = new Date(date - tzOffset).toISOString().slice(0, 16);
+        document.getElementById('editCarImportDate').value = localISOTime;
+      } else {
+        document.getElementById('editCarImportDate').value = '';
+      }
+      document.getElementById('editCarRentPrice').value = car.rentPrice;
+      document.getElementById('editCarStatus').value = car.status;
+      document.getElementById('editCarProducerId').value = car.producer.producerId;
+      editCarModal.show();
+    }
 
-    fetch('http://localhost:8080/de180293/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include' // để gửi cookie theo request
-    })
-            .then(res => res.json())
-            .then(data => {
-              console.log(data.message);
-            });
-    // Chuyển hướng về trang login
-    window.location.href = "../auth/login";
-  });
-</script>
+    document.getElementById('editCarForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const token = localStorage.getItem('accessToken');
+      const carId = document.getElementById('editCarId').value;
+      const data = {
+        carName: document.getElementById('editCarName').value,
+        carModelYear: parseInt(document.getElementById('editCarModelYear').value),
+        color: document.getElementById('editCarColor').value,
+        capacity: parseInt(document.getElementById('editCarCapacity').value),
+        description: document.getElementById('editCarDescription').value,
+        importDate: document.getElementById('editCarImportDate').value, // ISO string yyyy-MM-ddTHH:mm
+        rentPrice: parseFloat(document.getElementById('editCarRentPrice').value),
+        status: document.getElementById('editCarStatus').value,
+        producerId: document.getElementById('editCarProducerId').value
+      };
+      console.log(data);
+      try {
+
+        await fetch(`/de180293/api/cars/${carId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+            // 'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(data)
+        });
+        editCarModal.hide();
+        // location.reload();
+      } catch (err) {
+        alert('Cập nhật xe thất bại!');
+      }
+    });
+  </script>
+
+  <!-- LOGOUT -->
+  <script>
+    document.getElementById('logout').addEventListener('click', function (e) {
+      e.preventDefault();
+
+      // Xoá JWT token trong localStorage
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("username");
+      localStorage.removeItem("role");
+
+      fetch('http://localhost:8080/de180293/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include' // để gửi cookie theo request
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data.message);
+        });
+      // Chuyển hướng về trang login
+      window.location.href = "../auth/login";
+    });
+  </script>
 </body>
+
 </html>

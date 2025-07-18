@@ -139,4 +139,44 @@ public class CarRentalService {
         return rentalsPage.map(carRentalMapper::toRentalReport);
     }
 
+    public void cancelRental(String jwtToken, String rentalId) {
+        Customer customer = getCustomerFromToken(jwtToken);
+        CarRental rental = carRentalRepository.findById(rentalId)
+                .orElseThrow(() -> new AppException(ErrorCode.RENTAL_NOT_FOUND));
+        if (!rental.getCustomer().getCustomerId().equals(customer.getCustomerId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        if (!"PENDING".equals(rental.getStatus())) {
+            throw new AppException(ErrorCode.INVALID_RENTAL_STATUS);
+        }
+        rental.setStatus("CANCELLED");
+        carRentalRepository.save(rental);
+    }
+
+    public void depositRental(String jwtToken, String rentalId) {
+        Customer customer = getCustomerFromToken(jwtToken);
+        CarRental rental = carRentalRepository.findById(rentalId)
+                .orElseThrow(() -> new AppException(ErrorCode.RENTAL_NOT_FOUND));
+        if (!rental.getCustomer().getCustomerId().equals(customer.getCustomerId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        if (!"PENDING".equals(rental.getStatus())) {
+            throw new AppException(ErrorCode.INVALID_RENTAL_STATUS);
+        }
+        rental.setStatus("DEPOSITED");
+        carRentalRepository.save(rental);
+    }
+
+    public void markRentalAsRented(String jwtToken, String rentalId) {
+        CarRental rental = carRentalRepository.findById(rentalId)
+                .orElseThrow(() -> new AppException(ErrorCode.RENTAL_NOT_FOUND));
+
+        // Chỉ cho phép chuyển từ DEPOSITED hoặc CONFIRMED sang RENTED
+        if (!"DEPOSITED".equals(rental.getStatus()) && !"CONFIRMED".equals(rental.getStatus())) {
+            throw new AppException(ErrorCode.INVALID_RENTAL_STATUS);
+        }
+
+        rental.setStatus("RENTED");
+        carRentalRepository.save(rental);
+    }
 }

@@ -55,6 +55,7 @@ public class CarController {
 
     @PutMapping("/{id}")
     public APIResponse<?> updateCar(@PathVariable String id, @RequestBody CarRequest request) {
+//        System.out.println("demo");
         return APIResponse.<Car>builder()
                 .result(carService.updateCar(id, request))
                 .build();

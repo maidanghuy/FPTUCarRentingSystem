@@ -16,7 +16,6 @@ public class CarRentalController {
 
     private final CarRentalService carRentalService;
 
-
     @PostMapping
     public APIResponse<?> createCarRental(
             @RequestHeader("Authorization") String token,
@@ -27,5 +26,17 @@ public class CarRentalController {
         return APIResponse.<List<CarRental>>builder()
                 .result(rentals)
                 .build();
+    }
+
+    @DeleteMapping("/{rentalId}")
+    public APIResponse<?> cancelRental(@RequestHeader("Authorization") String token, @PathVariable String rentalId) {
+        carRentalService.cancelRental(token, rentalId);
+        return APIResponse.builder().result("Rental cancelled successfully").build();
+    }
+
+    @PutMapping("/{rentalId}/deposit")
+    public APIResponse<?> depositRental(@RequestHeader("Authorization") String token, @PathVariable String rentalId) {
+        carRentalService.depositRental(token, rentalId);
+        return APIResponse.builder().result("Rental deposited successfully").build();
     }
 }

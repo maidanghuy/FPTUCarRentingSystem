@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Customers Dashboard - FUCarRenting</title>
@@ -11,90 +12,245 @@
             display: flex;
             flex-direction: column;
         }
+
         .admin-sidebar {
             min-height: 100vh;
             background-color: #343a40;
             color: white;
         }
+
         .admin-sidebar a {
             color: white;
             display: block;
             padding: 12px 20px;
             text-decoration: none;
         }
+
         .admin-sidebar a:hover {
             background-color: #495057;
         }
     </style>
 </head>
+
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-dark bg-dark">
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin - FUCarRenting</a>
+            <button class="btn btn-outline-light" id="logout">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Admin - FUCarRenting</a>
-        <button class="btn btn-outline-light" id="logout">Logout</button>
-    </div>
-</nav>
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 admin-sidebar">
+                <h5 class="p-3">Management</h5>
+                <a href="cars">Manage Cars</a>
+                <a href="customers">Manage Customers</a>
+                <a href="rentals">Manage Rentals</a>
+                <a href="producers">Manage Producers</a>
+            </div>
 
-<!-- Main Content -->
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-2 admin-sidebar">
-            <h5 class="p-3">Management</h5>
-            <a href="cars">Manage Cars</a>
-            <a href="customers">Manage Customers</a>
-            <a href="rentals">Manage Rentals</a>
-            <a href="producers">Manage Producers</a>
+            <!-- Content Area -->
+            <div class="col-md-10 p-4" id="adminContent">
+                <h2>Customer Management</h2>
+                <form id="searchForm" class="row g-2 mb-3">
+                    <div class="col">
+                        <input type="text" class="form-control" id="searchName" placeholder="Name">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="searchEmail" placeholder="Email">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="searchMobile" placeholder="Mobile">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="searchIdentityCard" placeholder="Identity Card">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="searchLicenceNumber" placeholder="Licence Number">
+                    </div>
+                    <div class="col">
+                        <select class="form-select" id="searchPageSize">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </form>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Mobile</th>
+                            <th>Birthday</th>
+                            <th>Identity Card</th>
+                            <th>Licence Number</th>
+                            <th>Licence Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTableBody">
+                        <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </div>
+    </div>
 
-        <!-- Content Area -->
-        <div class="col-md-10 p-4" id="adminContent">
-            <h2>Customer Management</h2>
-            <table class="table table-bordered">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Mobile</th>
-                    <th>Birthday</th>
-                    <th>Identity Card</th>
-                    <th>Licence Number</th>
-                    <th>Licence Date</th>
-                </tr>
-                </thead>
-                <tbody id="customerTableBody">
-                <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
-                </tbody>
-            </table>
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Chỉnh sửa thông tin khách hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserForm">
+                        <input type="hidden" id="editUserId">
+                        <div class="mb-2">
+                            <label class="form-label">Tên</label>
+                            <input type="text" class="form-control" id="editUserName">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editUserEmail">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Mobile</label>
+                            <input type="text" class="form-control" id="editUserMobile">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Birthday</label>
+                            <input type="datetime-local" class="form-control" id="editUserBirthday">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Identity Card</label>
+                            <input type="text" class="form-control" id="editUserIdentityCard">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Licence Number</label>
+                            <input type="text" class="form-control" id="editUserLicenceNumber">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Licence Date</label>
+                            <input type="datetime-local" class="form-control" id="editUserLicenceDate">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" id="editUserPassword">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Load Customer Data -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const token = localStorage.getItem("accessToken");
-
-        fetch("/de180293/api/customer", {
-            headers: {
-                "Authorization": "Bearer " + token
+    <!-- Load Customer Data -->
+    <script>
+        let editUserModal;
+        let currentPage = 0;
+        let currentSize = 5;
+        function renderCustomersPage(page = 0, size = 5) {
+            const token = localStorage.getItem("accessToken");
+            const params = new URLSearchParams();
+            if (document.getElementById('searchName').value) params.append('name', document.getElementById('searchName').value);
+            if (document.getElementById('searchEmail').value) params.append('email', document.getElementById('searchEmail').value);
+            if (document.getElementById('searchMobile').value) params.append('mobile', document.getElementById('searchMobile').value);
+            if (document.getElementById('searchIdentityCard').value) params.append('identityCard', document.getElementById('searchIdentityCard').value);
+            if (document.getElementById('searchLicenceNumber').value) params.append('licenceNumber', document.getElementById('searchLicenceNumber').value);
+            params.append('page', page);
+            params.append('size', size);
+            fetch(`/de180293/api/customer/search?${params.toString()}`, {
+                headers: { "Authorization": "Bearer " + token }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const pageData = data.result || {};
+                    const customers = pageData.content || [];
+                    const tbody = document.getElementById("customerTableBody");
+                    tbody.innerHTML = "";
+                    if (customers.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No customers found.</td></tr>`;
+                        document.getElementById("paginationNav").innerHTML = '';
+                        return;
+                    }
+                    customers.forEach(cus => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                         <td>${cus.customerName}</td>
+                         <td>${cus.email}</td>
+                         <td>${cus.mobile}</td>
+                         <td>${cus.birthday}</td>
+                         <td>${cus.identityCard}</td>
+                         <td>${cus.licenceNumber}</td>
+                         <td>${cus.licenceDate}</td>
+                         <td>
+                           <button class="btn btn-primary btn-sm" onclick='openEditUserModal(${JSON.stringify(cus)})'>Chỉnh sửa</button>
+                         </td>
+                     `;
+                        tbody.appendChild(row);
+                    });
+                    renderCustomerPagination(pageData);
+                });
+        }
+        function renderCustomerPagination(pageData) {
+            const nav = document.getElementById("paginationNav");
+            nav.innerHTML = '';
+            if (!pageData || pageData.totalPages <= 1) return;
+            const totalPages = pageData.totalPages;
+            const current = pageData.number;
+            // Previous button
+            const prevLi = document.createElement('li');
+            prevLi.className = 'page-item' + (current === 0 ? ' disabled' : '');
+            prevLi.innerHTML = `<a class="page-link" href="#" tabindex="-1">Previous</a>`;
+            prevLi.onclick = function (e) { e.preventDefault(); if (current > 0) renderCustomersPage(current - 1, currentSize); };
+            nav.appendChild(prevLi);
+            // Page numbers
+            for (let i = 0; i < totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item' + (i === current ? ' active' : '');
+                li.innerHTML = `<a class="page-link" href="#">${i + 1}</a>`;
+                li.onclick = function (e) { e.preventDefault(); if (i !== current) renderCustomersPage(i, currentSize); };
+                nav.appendChild(li);
             }
-        })
-            .then(res => res.json())
-            .then(data => {
-                const customers = data.result || [];
-                const tbody = document.getElementById("customerTableBody");
+            // Next button
+            const nextLi = document.createElement('li');
+            nextLi.className = 'page-item' + (current === totalPages - 1 ? ' disabled' : '');
+            nextLi.innerHTML = `<a class="page-link" href="#">Next</a>`;
+            nextLi.onclick = function (e) { e.preventDefault(); if (current < totalPages - 1) renderCustomersPage(current + 1, currentSize); };
+            nav.appendChild(nextLi);
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = localStorage.getItem("accessToken");
 
-                if (customers.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No customers found.</td></tr>`;
-                    return;
+            fetch("/de180293/api/customer", {
+                headers: {
+                    "Authorization": "Bearer " + token
                 }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const customers = data.result || [];
+                    const tbody = document.getElementById("customerTableBody");
 
-                customers.forEach(cus => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
+                    if (customers.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No customers found.</td></tr>`;
+                        return;
+                    }
+
+                    customers.forEach(cus => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
           <td>${cus.customerName}</td>
           <td>${cus.email}</td>
           <td>${cus.mobile}</td>
@@ -102,32 +258,99 @@
           <td>${cus.identityCard}</td>
           <td>${cus.licenceNumber}</td>
           <td>${cus.licenceDate}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick='openEditUserModal(${JSON.stringify(cus)})'>Chỉnh sửa</button>
+          </td>
         `;
-                    tbody.appendChild(row);
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(err => {
+                    console.error("Failed to load customer data", err);
+                    const tbody = document.getElementById("customerTableBody");
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Failed to load data.</td></tr>`;
                 });
+
+            editUserModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+        });
+
+        function openEditUserModal(user) {
+            document.getElementById('editUserId').value = user.customerId;
+            document.getElementById('editUserName').value = user.customerName;
+            document.getElementById('editUserEmail').value = user.email;
+            document.getElementById('editUserMobile').value = user.mobile;
+            document.getElementById('editUserBirthday').value = user.birthday ? new Date(user.birthday).toISOString().slice(0, 16) : '';
+            document.getElementById('editUserIdentityCard').value = user.identityCard;
+            document.getElementById('editUserLicenceNumber').value = user.licenceNumber;
+            document.getElementById('editUserLicenceDate').value = user.licenceDate ? new Date(user.licenceDate).toISOString().slice(0, 16) : '';
+            document.getElementById('editUserPassword').value = '';
+            editUserModal.show();
+        }
+
+        document.getElementById('editUserForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const token = localStorage.getItem('accessToken');
+            const customerId = document.getElementById('editUserId').value;
+            const data = {
+                name: document.getElementById('editUserName').value,
+                email: document.getElementById('editUserEmail').value,
+                mobile: document.getElementById('editUserMobile').value,
+                birthday: document.getElementById('editUserBirthday').value,
+                identityCard: document.getElementById('editUserIdentityCard').value,
+                licenceNumber: document.getElementById('editUserLicenceNumber').value,
+                licenceDate: document.getElementById('editUserLicenceDate').value,
+                password: document.getElementById('editUserPassword').value
+            };
+            try {
+                await fetch(`/de180293/api/customer/${customerId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(data)
+                });
+                editUserModal.hide();
+                location.reload();
+            } catch (err) {
+                alert('Cập nhật khách hàng thất bại!');
+            }
+        });
+
+        document.getElementById('searchForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            currentPage = 0;
+            currentSize = parseInt(document.getElementById('searchPageSize').value);
+            renderCustomersPage(currentPage, currentSize);
+        });
+        // Thêm nav phân trang
+        const table = document.querySelector('table');
+        const nav = document.createElement('ul');
+        nav.className = 'pagination justify-content-center mt-3';
+        nav.id = 'paginationNav';
+        table.parentNode.appendChild(nav);
+        // Load mặc định
+        window.onload = function () {
+            renderCustomersPage(0, parseInt(document.getElementById('searchPageSize').value));
+        };
+    </script>
+
+    <!-- Logout Script -->
+    <script>
+        document.getElementById('logout').addEventListener('click', function (e) {
+            e.preventDefault();
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("username");
+            localStorage.removeItem("role");
+
+            fetch('http://localhost:8080/de180293/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
             })
-            .catch(err => {
-                console.error("Failed to load customer data", err);
-                const tbody = document.getElementById("customerTableBody");
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Failed to load data.</td></tr>`;
-            });
-    });
-</script>
-
-<!-- Logout Script -->
-<script>
-    document.getElementById('logout').addEventListener('click', function (e) {
-        e.preventDefault();
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("username");
-        localStorage.removeItem("role");
-
-        fetch('http://localhost:8080/de180293/api/auth/logout', {
-            method: 'POST',
-            credentials: 'include'
-        })
-            .then(() => window.location.href = "../auth/login");
-    });
-</script>
+                .then(() => window.location.href = "../auth/login");
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

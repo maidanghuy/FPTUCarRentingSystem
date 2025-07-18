@@ -12,7 +12,6 @@ public enum ErrorCode {
     // 1000–1099: Authentication & Authorization
     INVALID_KEY(1001, "Invalid API key", HttpStatus.BAD_REQUEST),
 
-
     // 1100–1199: Quản lý người dùng
     LICENCE_NUMBER_EXISTED(1101, "Licence number already exists", HttpStatus.BAD_REQUEST),
     MOBILE_EXISTED(1102, "Mobile number already exists", HttpStatus.BAD_REQUEST),
@@ -29,6 +28,9 @@ public enum ErrorCode {
     INVALID_DATE_RANGE(1204, "Invalid date range!", HttpStatus.BAD_REQUEST),
     CONFLICT_CAR_RENTAL(1205, "Conflict car rental!", HttpStatus.BAD_REQUEST),
     // 1300–1399: Thanh toán
+    RENTAL_NOT_FOUND(1301, "Rental not found!", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED(1302, "Unauthorized!", HttpStatus.UNAUTHORIZED),
+    INVALID_RENTAL_STATUS(1303, "Invalid rental status!", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
